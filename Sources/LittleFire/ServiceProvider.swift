@@ -30,7 +30,7 @@ public class ServiceProvider {
       }
   }
 
-  @available(OSX 10.15, *)
+  @available(OSX 10.15, iOS 13, *)
   public func requestPublisher<ServiceType>(service: ServiceType)
   -> AnyPublisher<ServiceType.ResponseType, LittleFireError>
   where ServiceType: Service {

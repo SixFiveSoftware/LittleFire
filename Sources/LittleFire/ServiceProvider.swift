@@ -16,7 +16,7 @@ public enum LittleFireError: Error {
 public class ServiceProvider {
   let urlSession = URLSession.shared
 
-  func request<ServiceType>(service: ServiceType) -> Promise<ServiceType.ResponseType> where ServiceType: Service {
+  public func request<ServiceType>(service: ServiceType) -> Promise<ServiceType.ResponseType> where ServiceType: Service {
     perform(service.urlRequest)
       .then { (data) -> Promise<ServiceType.ResponseType> in
         do {
@@ -28,9 +28,6 @@ public class ServiceProvider {
       }
   }
 
-}
-
-extension ServiceProvider {
   private func perform(_ request: URLRequest) -> Promise<Data> {
     Promise { seal in
       urlSession.dataTask(with: request) { data, _, error in

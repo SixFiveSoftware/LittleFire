@@ -39,6 +39,7 @@ public class ServiceProvider {
       .map(\.data)
       .decode(type: ServiceType.ResponseType.self, decoder: ServiceType.ResponseType.decoder)
       .mapError(cast)
+      .receive(on: DispatchQueue.main)
       .eraseToAnyPublisher()
   }
 

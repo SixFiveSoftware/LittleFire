@@ -23,3 +23,31 @@ provider.request(service: MyTodoService<MyTodoObject>.getTodo(1))
   .then { todo in self.updateUI(with: todo) }
 	.catch { error in self.handle(error: error) }
 ```
+
+Creating your own service might looks something like this:
+```
+import LittleFire
+
+enum JSONPlaceholderTodoService<T>: Service where T: ResponseDecodable {
+  typealias ResponseType = T
+
+  case getTodo(Int)
+}
+
+extension JSONPlaceholderTodoService {
+  var baseURL: String { "https://jsonplaceholder.typicode.com" }
+
+  var path: String {
+    switch self {
+    case .getTodo(let id): return "todos/\(id)"
+    }
+  }
+
+  var parameters: [String : Any]? { nil }
+  var method: LittleFire.ServiceMethod { .get }
+  var body: Data? { nil }
+}
+```
+By telling the protocol that your `ResponseType` is the generic T, you can specify the decodable type at the callsite. So, say for instance that if you had a `get` case and a `post` case for the same endpoint, just different paths, you could have different decodable response bodies in the same `Service`, so long as they conform to `ResponseDecodable`.
+
+

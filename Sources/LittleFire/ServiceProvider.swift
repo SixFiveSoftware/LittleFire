@@ -30,6 +30,22 @@ public class ServiceProvider {
       }
   }
 
+  @available(OSX 10.15, *)
+  public func requestPublisher<ServiceType>(service: ServiceType)
+  -> AnyPublisher<ServiceType.ResponseType, LittleFireError>
+  where ServiceType: Service {
+
+    urlSession.dataTaskPublisher(for: service.urlRequest)
+      .map(\.data)
+      .decode(type: ServiceType.ResponseType.self, decoder: ServiceType.ResponseType.decoder)
+      .mapError(cast)
+      .eraseToAnyPublisher()
+  }
+
+  private func cast(error: Error) -> LittleFireError {
+    .unknown // just return .unknown for now till error casting is built
+  }
+
   private func perform(_ request: URLRequest) -> Promise<Data> {
     Promise { seal in
       urlSession.dataTask(with: request) { data, _, error in

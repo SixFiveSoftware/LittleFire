@@ -16,6 +16,8 @@ public enum LittleFireError: Error {
 public class ServiceProvider {
   let urlSession = URLSession.shared
 
+  public init() {}
+
   public func request<ServiceType>(service: ServiceType) -> Promise<ServiceType.ResponseType> where ServiceType: Service {
     perform(service.urlRequest)
       .then { (data) -> Promise<ServiceType.ResponseType> in

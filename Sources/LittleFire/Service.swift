@@ -19,6 +19,11 @@ public protocol Service {
 }
 
 public extension Service {
+  // MARK: default implementations
+  var parameters: [String: Any]? { nil }
+  var body: Data? { nil }
+
+  // MARK: computed request
   var urlRequest: URLRequest {
     guard let url = url else { fatalError("URL could not be formed") }
     var request = URLRequest(url: url)
@@ -27,6 +32,7 @@ public extension Service {
     return request
   }
 
+  // MARK: private
   private var formattedPath: String {
     path.starts(with: "/") ? path : "/" + path
   }

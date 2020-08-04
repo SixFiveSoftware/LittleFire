@@ -11,12 +11,16 @@ import Combine
 
 public enum LittleFireError: Error {
   case unknown
+  case urlError(URLError)
+  case decodingError(DecodingError)
 }
 
 public class ServiceProvider {
-  let urlSession = URLSession.shared
+  let urlSession: URLSession
 
-  public init() {}
+  public init(urlSession: URLSession = URLSession.shared) {
+    self.urlSession = urlSession
+  }
 
   public func request<ServiceType>(service: ServiceType) -> Promise<ServiceType.ResponseType> where ServiceType: Service {
     perform(service.urlRequest)
@@ -36,6 +40,7 @@ public class ServiceProvider {
   where ServiceType: Service {
 
     urlSession.dataTaskPublisher(for: service.urlRequest)
+      .retry(1)
       .map(\.data)
       .decode(type: ServiceType.ResponseType.self, decoder: ServiceType.ResponseType.decoder)
       .mapError(cast)
@@ -44,7 +49,12 @@ public class ServiceProvider {
   }
 
   private func cast(error: Error) -> LittleFireError {
-    .unknown // just return .unknown for now till error casting is built
+    if let urlError = error as? URLError {
+      return .urlError(urlError)
+    } else if let decodingError = error as? DecodingError {
+      return .decodingError(decodingError)
+    }
+    return .unknown
   }
 
   private func perform(_ request: URLRequest) -> Promise<Data> {

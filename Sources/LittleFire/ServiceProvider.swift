@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PromiseKit
 import Combine
 
 public enum LittleFireError: Error {
@@ -20,18 +19,6 @@ public class ServiceProvider {
 
   public init(urlSession: URLSession = URLSession.shared) {
     self.urlSession = urlSession
-  }
-
-  public func request<ServiceType>(service: ServiceType) -> Promise<ServiceType.ResponseType> where ServiceType: Service {
-    perform(service.urlRequest)
-      .then { (data) -> Promise<ServiceType.ResponseType> in
-        do {
-          let object = try ServiceType.ResponseType.decoder.decode(ServiceType.ResponseType.self, from: data)
-          return .value(object)
-        } catch {
-          throw error
-        }
-      }
   }
 
   @available(OSX 10.15, iOS 13, *)
@@ -55,19 +42,5 @@ public class ServiceProvider {
       return .decodingError(decodingError)
     }
     return .unknown
-  }
-
-  private func perform(_ request: URLRequest) -> Promise<Data> {
-    Promise { seal in
-      urlSession.dataTask(with: request) { data, _, error in
-        if let err = error {
-          seal.reject(err)
-        } else if let data = data {
-          seal.fulfill(data)
-        } else {
-          seal.reject(LittleFireError.unknown)
-        }
-      }.resume()
-    }
   }
 }

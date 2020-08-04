@@ -14,14 +14,13 @@ let provider = ServiceProvider()
 
 Next, create a service. The service is generic over the type you expect to decode. It's recommended to create your own service as an enum, that conforms to the `Service` protocol.
 ```
-provider.request(service: MyTodoService<MyTodoObject>.getTodo(1))
+provider.requestPublisher(service: MyTodoService<MyTodoObject>.getTodo(1))
 ```
 
-Currently, LittleFire uses PromiseKit to handle async calls. So, the call above to request a `MyTodoObject` can be fetched like so:
+Currently, LittleFire uses Combine publishers to handle async calls. So, the call above to request a `MyTodoObject` can be fetched like so:
 ```
-provider.request(service: MyTodoService<MyTodoObject>.getTodo(1))
-  .then { todo in self.updateUI(with: todo) }
-	.catch { error in self.handle(error: error) }
+provider.requestPublisher(service: MyTodoService<MyTodoObject>.getTodo(1))
+  .sink { todo in self.updateUI(with: todo) }
 ```
 
 Creating your own service might looks something like this:
